@@ -1,2 +1,0 @@
-URL
-amatatu.com

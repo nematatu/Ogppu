@@ -6,6 +6,7 @@ import { Loader2, Download, History } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+// import Image from 'next/image'
 
 export default function ImageGeneratorDemo() {
   const [title, setTitle] = useState('')
@@ -17,9 +18,29 @@ export default function ImageGeneratorDemo() {
     e.preventDefault()
     setIsGenerating(true)
     // Simulate image generation delay
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    setGeneratedImage(`/placeholder.svg?text=${encodeURIComponent(title)}`)
-    setHistory(prev => [title, ...prev.slice(0, 4)])
+    //await new Promise(resolve => setTimeout(resolve, 2000))
+
+    try {
+      console.log('title:', title)
+      const response = await fetch('http://localhost:3000/ogp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title })
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        const base64Image = `data:image/png;base64,${data.image}`
+        setGeneratedImage(base64Image)
+        setHistory(prev => [title, ...prev.slice(0, 4)])
+      } else {
+        console.error('Failed to generate image:', response.statusText)
+      }
+    } catch (error) {
+      console.error('Failed to generate image:', error)
+    }
     setIsGenerating(false)
   }
 
@@ -73,7 +94,7 @@ export default function ImageGeneratorDemo() {
           <CardFooter className="flex flex-col items-center">
             {generatedImage && (
               <div className="mt-4 space-y-4 w-full">
-                <img src={generatedImage} alt={title} className="w-full h-64 object-cover rounded-lg shadow-lg" />
+                <img src={generatedImage} alt={title} className="w-full h-full object-cover rounded-lg shadow-lg" />
                 <Button onClick={handleDownload} className="w-full">
                   <Download className="mr-2 h-4 w-4" /> Download Image
                 </Button>
