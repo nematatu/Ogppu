@@ -21,7 +21,7 @@ export default function ImageGeneratorDemo() {
 
     try {
       console.log('title:', title);
-      const response = await axios.post('/api/ogp', {
+      const response = await axios.post('https://render-api-q5i3.onrender.com/ogp', {
         title,
       });
 
