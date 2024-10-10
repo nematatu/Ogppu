@@ -1,0 +1,106 @@
+#! /usr/bin/env python3
+
+from PIL import Image, ImageDraw, ImageFont
+from datetime import datetime
+import sys
+import os
+
+
+def create_text_image(text, output_path):
+    image_width = 1920
+    image_height = 1080
+    # 画像の作成
+    # image = Image.new('RGB', (image_width, image_height), 'white')
+
+    parent_dir=os.path.dirname(os.path.abspath(__file__))
+    image_path = os.path.join(parent_dir, "OGP.png")
+    image = Image.open(image_path)
+    draw = ImageDraw.Draw(image)
+
+    font_size = 80
+    try:
+        font_path=os.path.join(parent_dir,"irohakakuC-Medium.ttf")
+        font = ImageFont.truetype(font_path, font_size)
+    except:
+        font = ImageFont.load_default()
+
+    def wrap_text(text, max_width, font):
+        lines = []
+
+        paragraphs = text.split("\n")
+
+        for paragraph in paragraphs:
+            current_line = ""
+
+            for char in paragraph:
+                # 1文字追加してみる
+                test_line = f"{current_line}{char}"
+                # heightは無視
+                width, height = draw.textbbox(
+                    (0, 0, image_width, image_height), test_line, font=font
+                )[2:]
+                # 1文字追加してみた結果が、max_widthを超えなければ、current_line(正規の文字列)とする
+                if width <= max_width:
+                    current_line = test_line
+                # 超えてしまった場合で、
+                else:
+                    # current_lineが存在したら、
+                    if current_line:
+                        # lines配列にcurrent_line(1文字追加する前の文字列)を追加する
+                        lines.append(current_line)
+                    # current_lineを追加する1文字で初期化する
+                    current_line = char
+
+            # 入力文字列が全部終わって、current_lineが存在したら、
+            if current_line:
+                # lines配列にcurrent_line(初期化したn行目の文字列)を追加する
+                lines.append(current_line)
+
+        return lines
+
+    padding = 200
+    lines = wrap_text(text, image_width - 2 * padding, font)
+
+    if lines:
+        line_bbox = draw.textbbox(
+            (0, 0, image_width, image_height), lines[0], font=font
+        )
+        line_height = line_bbox[3] - line_bbox[1]
+    else:
+        line_height = 0
+
+    # 全部の行の高さ
+    total_text_height = line_height * len(lines)
+
+    start_y = (image_height - total_text_height) // 2
+    line_space = 50
+
+    for line in lines:
+        line_bbox = draw.textbbox((0, 0, image_width, image_height), line, font=font)
+        line_width = line_bbox[2] - line_bbox[0]
+
+        start_x = padding + (image_width - 2 * padding - line_width) // 2
+        # draw.rectangle((start_x,start_y,start_x+line_width,start_y+line_height),fill='black')
+        draw.text((start_x, start_y), line, fill="black", font=font)
+        start_y += line_height + line_space
+
+    now = datetime.now()
+    formatted_date = now.strftime("%y.%m.%d")
+    myname = "@nematatu"
+
+    draw.text((140, 10), myname, fill="black", font=font)
+    draw.text((1500, 970), str(formatted_date), fill="black", font=font)
+
+    # 画像を保存
+    image.save(output_path)
+
+
+# title=input()
+title = sys.argv[1].replace("\\n", "\n")
+
+# output_dir = os.path.expanduser("~/local_dev/zenn/images/")
+output_dir=os.path.join(os.path.dirname(os.path.abspath(__file__)),'Images')
+output_name = sys.argv[1] + ".png"
+output_path = os.path.join(output_dir, output_name)
+
+create_text_image(title, output_path)

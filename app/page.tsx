@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 // import Image from 'next/image'
-
+import axios from 'axios'
 export default function ImageGeneratorDemo() {
   const [title, setTitle] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
@@ -15,34 +15,39 @@ export default function ImageGeneratorDemo() {
   const [history, setHistory] = useState<string[]>([])
 
   const handleGenerate = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsGenerating(true)
-    // Simulate image generation delay
-    //await new Promise(resolve => setTimeout(resolve, 2000))
+    e.preventDefault();
+    setIsGenerating(true);
 
     try {
-      console.log('title:', title)
-      const response = await fetch('http://localhost:3000/ogp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ title })
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        const base64Image = `data:image/png;base64,${data.image}`
-        setGeneratedImage(base64Image)
-        setHistory(prev => [title, ...prev.slice(0, 4)])
-      } else {
-        console.error('Failed to generate image:', response.statusText)
-      }
+        console.log('title:', title);
+        const response = await axios.post('/api/ogp', {
+            title,
+        });
+
+        if (response.status === 200) {
+            const base64Image = `data:image/png;base64,${response.data.image}`;
+            setGeneratedImage(base64Image);
+            setHistory((prev) => [title, ...prev.slice(0, 4)]);
+        } else {
+            console.error('Failed to generate image:', response.statusText);
+        }
     } catch (error) {
-      console.error('Failed to generate image:', error)
+        if (axios.isAxiosError(error)) {
+            // Axiosエラーの場合
+            console.error('Axios Error:', error.response?.data || error.message);
+            if (error.response) {
+                // サーバーからのレスポンスがある場合
+                console.error('Error status:', error.response.status);
+                console.error('Error data:', error.response.data);
+            }
+        } else {
+            // その他のエラーの場合
+            console.error('Error:', error);
+        }
+    } finally {
+        setIsGenerating(false);
     }
-    setIsGenerating(false)
-  }
+};
 
   const handleDownload = () => {
     // In a real app, this would trigger the actual download
@@ -77,13 +82,14 @@ export default function ImageGeneratorDemo() {
                 disabled={isGenerating}
                 className="w-full py-6 text-lg relative overflow-hidden"
               >
+                
                 {isGenerating ? (
                   <motion.div
                     className="absolute inset-0 flex items-center justify-center bg-primary"
                     initial={{ x: '-100%' }}
                     animate={{ x: '0%' }}
                     transition={{ duration: 2, ease: 'linear' }}
-                  >
+                    >
                     <Loader2 className="w-6 h-6 animate-spin" />
                   </motion.div>
                 ) : null}
