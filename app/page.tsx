@@ -20,35 +20,35 @@ export default function ImageGeneratorDemo() {
     setIsGenerating(true);
 
     try {
-        console.log('title:', title);
-        const response = await axios.post('/api/ogp', {
-            title,
-        });
+      console.log('title:', title);
+      const response = await axios.post('/api/ogp', {
+        title,
+      });
 
-        if (response.status === 200) {
-            const base64Image = `data:image/png;base64,${response.data.image}`;
-            setGeneratedImage(base64Image);
-            setHistory((prev) => [title, ...prev.slice(0, 4)]);
-        } else {
-            console.error('Failed to generate image:', response.statusText);
-        }
+      if (response.status === 200) {
+        const base64Image = `data:image/png;base64,${response.data.image}`;
+        setGeneratedImage(base64Image);
+        setHistory((prev) => [title, ...prev.slice(0, 4)]);
+      } else {
+        console.error('Failed to generate image:', response.statusText);
+      }
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            // Axiosエラーの場合
-            console.error('Axios Error:', error.response?.data || error.message);
-            if (error.response) {
-                // サーバーからのレスポンスがある場合
-                console.error('Error status:', error.response.status);
-                console.error('Error data:', error.response.data);
-            }
-        } else {
-            // その他のエラーの場合
-            console.error('Error:', error);
+      if (axios.isAxiosError(error)) {
+        // Axiosエラーの場合
+        console.error('Axios Error:', error.response?.data || error.message);
+        if (error.response) {
+          // サーバーからのレスポンスがある場合
+          console.error('Error status:', error.response.status);
+          console.error('Error data:', error.response.data);
         }
+      } else {
+        // その他のエラーの場合
+        console.error('Error:', error);
+      }
     } finally {
-        setIsGenerating(false);
+      setIsGenerating(false);
     }
-};
+  };
 
   const handleDownload = () => {
     // In a real app, this would trigger the actual download
@@ -70,43 +70,30 @@ export default function ImageGeneratorDemo() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleGenerate} className="space-y-4">
-              <div className="flex flex-row gap-x-4">
                 <div className='flex flex-col w-1/2 '>
-              <label htmlFor="title" className="font-bold text-lg">Title</label>
-              <Input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter title"
-                className="text-lg py-3"
-                required
-              />
-              </div>
-              {/* <div className='flex flex-col w-1/2'>
-              <label htmlFor="userName" className="font-bold text-lg">UserName</label>
-              <Input
-                type="text"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                placeholder="Enter userName"
-                className="text-lg py-3"
-                
-              />
-              </div> */}
-              </div>
+                  <label htmlFor="title" className="font-bold text-lg">Title</label>
+                  <Input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Enter title"
+                    className="text-lg py-3"
+                    required
+                  />
+                </div>
               <Button
                 type="submit"
                 disabled={isGenerating}
                 className="w-full py-6 text-lg relative overflow-hidden"
               >
-                
+
                 {isGenerating ? (
                   <motion.div
                     className="absolute inset-0 flex items-center justify-center bg-primary"
                     initial={{ x: '-100%' }}
                     animate={{ x: '0%' }}
                     transition={{ duration: 2, ease: 'linear' }}
-                    >
+                  >
                     <Loader2 className="w-6 h-6 animate-spin" />
                   </motion.div>
                 ) : null}
