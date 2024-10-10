@@ -10,6 +10,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import axios from 'axios'
 export default function ImageGeneratorDemo() {
   const [title, setTitle] = useState('')
+  // const [userName, setUserName] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [history, setHistory] = useState<string[]>([])
@@ -69,6 +70,9 @@ export default function ImageGeneratorDemo() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleGenerate} className="space-y-4">
+              <div className="flex flex-row gap-x-4">
+                <div className='flex flex-col w-1/2 '>
+              <label htmlFor="title" className="font-bold text-lg">Title</label>
               <Input
                 type="text"
                 value={title}
@@ -77,6 +81,19 @@ export default function ImageGeneratorDemo() {
                 className="text-lg py-3"
                 required
               />
+              </div>
+              {/* <div className='flex flex-col w-1/2'>
+              <label htmlFor="userName" className="font-bold text-lg">UserName</label>
+              <Input
+                type="text"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                placeholder="Enter userName"
+                className="text-lg py-3"
+                
+              />
+              </div> */}
+              </div>
               <Button
                 type="submit"
                 disabled={isGenerating}

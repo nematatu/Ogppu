@@ -88,7 +88,7 @@ def create_text_image(text, output_path):
     formatted_date = now.strftime("%y.%m.%d")
     myname = "@nematatu"
 
-    draw.text((140, 10), myname, fill="black", font=font)
+    # draw.text((140, 10), myname, fill="black", font=font)
     draw.text((1500, 970), str(formatted_date), fill="black", font=font)
 
     # 画像を保存
